@@ -10,21 +10,20 @@ import logging
 
 @pytest.fixture(scope="session")
 def session_setup():
+    # region setup
     logging.debug('Session setup')
-    logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel('WARNING')
-    logging.getLogger('urllib3.connectionpool').setLevel('WARNING')
-    logging.getLogger('requests_oauthlib').setLevel('WARNING')
-    logging.getLogger('oauthlib').setLevel('WARNING')
-
     yield ChromeDriverManager().install()
+    # endregion
+
+    # region teardown
     logging.debug('Session teardown')
+    # endregion
 
 
 @pytest.fixture(scope="function")
 def driver_setup(request, session_setup):
-    logging.debug('Driver setup')
-
     # region setup
+    logging.debug('Driver setup')
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-gpu')
@@ -66,3 +65,13 @@ def pytest_exception_interact(node, report):
             logging.debug(f"Screenshot saved as '{screenshot_file}'")
         except Exception as ex:
             logging.error(f"Exception saving screenshot {ex}")
+
+
+def pytest_configure(config):
+    logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel('WARNING')
+    logging.getLogger('urllib3.connectionpool').setLevel('WARNING')
+    logging.getLogger('requests_oauthlib').setLevel('WARNING')
+    logging.getLogger('oauthlib').setLevel('WARNING')
+
+    if os.environ.get('CI'):
+        config.option.log_cli_level = 'error'
