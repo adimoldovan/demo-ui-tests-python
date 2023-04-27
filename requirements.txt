@@ -1,0 +1,6 @@
+pytest==7.3.1
+selenium==4.9.0
+webdriver_manager==3.8.6
+pytest-json-report
+pytest-html
+pytest-xdist
