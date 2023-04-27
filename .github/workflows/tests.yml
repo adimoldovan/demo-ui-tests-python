@@ -1,0 +1,42 @@
+name: Run tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  push:
+    branches: [master]
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+    inputs:
+      demoFailure:
+        description: 'Should fail?'
+        required: true
+        default: 'false'
+  repository_dispatch:
+    types: ['e2e**']
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: FAIL_DEMO=${{github.event.inputs.demoFailure}} pytest
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v2.2.0
+        with:
+          name: reports
