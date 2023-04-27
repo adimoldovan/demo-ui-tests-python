@@ -68,10 +68,11 @@ def pytest_exception_interact(node, report):
 
 
 def pytest_configure(config):
-    logging.getLogger('selenium.webdriver.remote.remote_connection').setLevel('WARNING')
-    logging.getLogger('urllib3.connectionpool').setLevel('WARNING')
-    logging.getLogger('requests_oauthlib').setLevel('WARNING')
-    logging.getLogger('oauthlib').setLevel('WARNING')
+    quiet_list = ['selenium.webdriver.remote.remote_connection', 'urllib3.connectionpool', 'requests_oauthlib',
+                  'oauthlib']
+
+    for m in quiet_list:
+        logging.getLogger(m).setLevel('WARNING')
 
     if os.environ.get('CI'):
         config.option.log_cli_level = 'error'
